@@ -1,16 +1,19 @@
 import RestaurantCard from "./RestaurantCard";
-import { useState, useEffect } from "react";
+import { HighRated } from "./RestaurantCard";
+import { useState, useEffect, useContext } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import UserContext from "../utils/UserContext";
 
 const Body = () => {
   const [listOfRestaurants, setlistOfRestaurants] = useState([]);
 
   const [searchText, setSearchText] = useState("");
-  console.log(listOfRestaurants);
 
   const [filteredRestaurants, setfilteredRestaurants] = useState([]);
+
+  const RestaurantHighRated = HighRated(RestaurantCard);
 
   useEffect(() => {
     fetchData();
@@ -35,6 +38,8 @@ const Body = () => {
     return (
       <h1>Looks like you're Offline.Please check your internet connection.</h1>
     );
+
+  const { loggedInUser, setUserName } = useContext(UserContext);
 
   return listOfRestaurants.length === 0 ? (
     <Shimmer />
@@ -75,6 +80,14 @@ const Body = () => {
             Top Rated Restaurants
           </button>
         </div>
+        <div className="search m-4 p-4 flex items-center">
+          <label>UserName: </label>
+          <input
+            className="border border-black px-2 "
+            value={loggedInUser}
+            onChange={(e) => setUserName(e.target.value)}
+          />
+        </div>
       </div>
       <div className="flex flex-wrap justify-self-center">
         {filteredRestaurants.map((restaurant) => (
@@ -82,7 +95,11 @@ const Body = () => {
             to={"/restaurants/" + restaurant.info.id}
             key={restaurant.info.id}
           >
-            <RestaurantCard resData={restaurant} />
+            {restaurant.info.avgRating > 4.5 ? (
+              <RestaurantHighRated resData={restaurant} />
+            ) : (
+              <RestaurantCard resData={restaurant} />
+            )}
           </Link>
         ))}
       </div>
